@@ -102,6 +102,12 @@ r_squared <- function(actual, pred) {
 records <- list()
 preds <- list()
 
+# perform normalization on the predictors
+X_train <- scale(X_train)
+
+# for x_test use the same mean and standard deviation as the training set
+X_test <- scale(X_test, center = attr(X_train, "scaled:center"), scale = attr(X_train, "scaled:scale"))
+
 # ----- OLS -----
 fit_lm <- lm(y_train ~ ., data = as.data.frame(X_train))
 pred_lm <- as.numeric(predict(fit_lm, newdata = as.data.frame(X_test)))
