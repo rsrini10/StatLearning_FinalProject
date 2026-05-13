@@ -1,3 +1,34 @@
+======================================================================== 
+Table 1: food_nutrient_conc.csv characteristics
+======================================================================== 
+
+[Key characteristics]
+                                               Metric                  Value
+                                              Dataset food_nutrient_conc.csv
+                               Number of foods (rows)                   5431
+                                    Unique food names                   5431
+                                    Number of columns                     67
+              Numeric columns (excluding blank index)                     65
+                             Character/factor columns                      1
+ Number of labels/classes (from supervised_table.csv)                    171
+                                  Total missing cells                      0
+                          Columns with missing values                      0
+                                Percent missing cells                0.0000%
+
+[Variable distribution summary]
+                                             Metric    Value
+ Across numeric variables: median of variable means   2.3799
+    Across numeric variables: IQR of variable means  27.8763
+   Across numeric variables: median of variable SDs   4.0804
+           Across numeric variables: median % zeros     10.9
+              Across numeric variables: max % zeros    98.32
+              Across numeric variables: min % zeros     0.33
+                           Energy (kcal/100g): mean 199.2517
+                         Energy (kcal/100g): median      167
+                             Energy (kcal/100g): SD 142.6956
+                            Energy (kcal/100g): min        0
+                            Energy (kcal/100g): max      902
+
 
 ========================================================================
 food_nutrient_conc.csv 
@@ -321,5 +352,27 @@ Food_Name sets identical: TRUE
 Row order Food_Name identical: TRUE 
 Nutrient-like columns in food only (not in supervised): Calcium, Ca, MUFA 20:1, PUFA 20:5 n-3 (EPA), SFA 14:0, Total Sugars, Carotene, beta, Total lipid (fat), Vitamin B-12, added, PUFA 18:3, PUFA 18:2, Phosphorus, P, Folic acid, Vitamin E (alpha-tocopherol), Vitamin B-6, Folate, DFE, Cryptoxanthin, beta, Fatty acids, total saturated, SFA 8:0, Zinc, Zn, Magnesium, Mg, Folate, food, SFA 12:0, SFA 16:0, Alcohol, ethyl, Fatty acids, total monounsaturated, Copper, Cu, PUFA 20:4, Choline, total, Carbohydrate, by difference, Carotene, alpha, Vitamin K (phylloquinone), Vitamin B-12, SFA 6:0, PUFA 22:6 n-3 (DHA), PUFA 18:4, Fiber, total dietary, MUFA 16:1, Fatty acids, total polyunsaturated, PUFA 22:5 n-3 (DPA), Lutein + zeaxanthin, Vitamin D (D2 + D3), Potassium, K, Iron, Fe, SFA 10:0, MUFA 22:1, Selenium, Se, Vitamin A, RAE, Vitamin E, added, Folate, total, Sodium, Na, Vitamin C, total ascorbic acid, SFA 18:0, MUFA 18:1, SFA 4:0
 Nutrient-like columns in supervised only (not in food): Calcium..Ca, MUFA.20.1, PUFA.20.5.n.3..EPA., SFA.14.0, Total.Sugars, Carotene..beta, Total.lipid..fat., Vitamin.B.12..added, PUFA.18.3, PUFA.18.2, Phosphorus..P, Folic.acid, Vitamin.E..alpha.tocopherol., Vitamin.B.6, Folate..DFE, Cryptoxanthin..beta, Fatty.acids..total.saturated, SFA.8.0, Zinc..Zn, Magnesium..Mg, Folate..food, SFA.12.0, SFA.16.0, Alcohol..ethyl, Fatty.acids..total.monounsaturated, Copper..Cu, PUFA.20.4, Choline..total, Carbohydrate..by.difference, Carotene..alpha, Vitamin.K..phylloquinone., Vitamin.B.12, SFA.6.0, PUFA.22.6.n.3..DHA., PUFA.18.4, Fiber..total.dietary, MUFA.16.1, Fatty.acids..total.polyunsaturated, PUFA.22.5.n.3..DPA., Lutein...zeaxanthin, Vitamin.D..D2...D3., Potassium..K, Iron..Fe, SFA.10.0, MUFA.22.1, Selenium..Se, Vitamin.A..RAE, Vitamin.E..added, Folate..total, Sodium..Na, Vitamin.C..total.ascorbic.acid, SFA.18.0, MUFA.18.1, SFA.4.0
+
+========================================================================
+Calorie distribution of the foods
+======================================================================== 
+
+Average Calorie per food:  199.2517 
+Median Calorie per food:  167 
+Max Calorie per food:  902 
+Min Calorie per food:  0 
+Standard Deviation of Calorie per food:  142.6956 
+
+========================================================================
+Micronutrient component distributions
+======================================================================== 
+
+Number of micronutrient components visualized: 34
+Micronutrient histogram panels exclude values equal to 0.
+Rows used in faceted histograms (value > 0): 130391
+Median % zeros across micronutrient components: 7.76%
+Max % zeros across micronutrient components: 96.45%
+Saved plot: plots/micronutrient_distributions_faceted.png
+Saved plot: plots/micronutrient_zero_percentage.png
 
 Done.
