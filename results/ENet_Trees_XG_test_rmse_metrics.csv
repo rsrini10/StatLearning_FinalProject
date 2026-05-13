@@ -1,0 +1,4 @@
+"Model","RMSE"
+"XGBoost",49.0757383066685
+"Decision Tree",88.3781146194453
+"Elastic Net",378.172348384413

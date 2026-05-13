@@ -113,6 +113,7 @@ en_ctrl <- trainControl(method = "cv", number = 5, verboseIter = FALSE)
 en_train_mod <- train(
   x = X_train_mat, y = y_train,
   method = "glmnet",
+  metric = "RMSE",
   tuneGrid = en_grid,
   trControl = en_ctrl
 )
@@ -138,6 +139,7 @@ tree_maxdepth <- 5
 tree_train_mod <- train(
   x = X_train, y = y_train,
   method = "rpart",
+  metric = "RMSE",
   tuneGrid = tree_grid,
   # Pass maxdepth via the control argument
   control = rpart.control(maxdepth = tree_maxdepth),
@@ -172,6 +174,7 @@ xgb_grid <- expand.grid(
 xgb_train_mod <- train(
   x = as.matrix(X_train), y = y_train,
   method = "xgbTree",
+  metric = "RMSE",
   tuneGrid = xgb_grid,
   trControl = trainControl(method = "cv", number = 5),
   verbosity = 0
@@ -203,17 +206,6 @@ results_comparison <- data.frame(
   Model = rep(c("Elastic Net", "Decision Tree", "XGBoost"), each = length(y_test))
 )
 
-metrics <- results_comparison %>%
-  group_by(Model) %>%
-  summarize(
-    RMSE = sqrt(mean((Actual - Predicted)^2)),
-    Adj_R2 = case_when(
-      Model == "Elastic Net" ~ adjusted_r2(Actual, Predicted, en_nonzero_terms),
-      Model == "Decision Tree" ~ adjusted_r2(Actual, Predicted, sum(tree_fit$frame$var != "<leaf>")),
-      Model == "XGBoost" ~ adjusted_r2(Actual, Predicted, nrow(xgb.importance(model = xgb_fit))),
-      TRUE ~ NA_real_
-    )
-  )
 ################################################################
 # 3. Importance Analysis & Plots
 ################################################################
@@ -308,16 +300,15 @@ for (m in models) {
 
 # 3. Final metrics printout for reference
 metrics <- results_comparison %>%
-  group_by(Model) %>%
-  summarize(
+  dplyr::group_by(Model) %>%
+  dplyr::summarise(
     RMSE = sqrt(mean((Actual - Predicted)^2)),
-    Adj_R2 = case_when(
-      Model == "Elastic Net" ~ adjusted_r2(Actual, Predicted, en_nonzero_terms),
-      Model == "Decision Tree" ~ adjusted_r2(Actual, Predicted, sum(tree_fit$frame$var != "<leaf>")),
-      Model == "XGBoost" ~ adjusted_r2(Actual, Predicted, nrow(xgb.importance(model = xgb_fit))),
-      TRUE ~ NA_real_
-    )
-  )
+    .groups = "drop"
+  ) %>%
+  dplyr::arrange(RMSE)
+
+test_rmse_metrics <- metrics %>%
+  dplyr::select(Model, RMSE)
 
 cat("\nAnalysis Complete. Summary Metrics:\n")
 print(metrics)
@@ -343,47 +334,9 @@ write.csv(as.data.frame(lda_cm$table),
 # 10. Final Report Generation
 ################################################################
 cat("\n--- Saving Final Report to Results Folder ---\n")
-
-report_file <- file.path(results_dir, "model_performance_report.txt")
-
-# Open file connection
-sink(report_file)
-
-cat("==============================================\n")
-cat("FOOD NUTRIENT ANALYSIS: CALORIC PREDICTION REPORT\n")
-cat("Generated on:", Sys.time(), "\n")
-cat("==============================================\n\n")
-
-cat("1. DATA SUMMARY\n")
-cat("----------------------------------------------\n")
-cat("Total Rows (Clean):", nrow(X_clean), "\n")
-cat("Predictors used:   ", ncol(X_clean), "\n")
-cat("Train/Test Split:   80/20\n\n")
-
-cat("2. AIM 2: REGRESSION PERFORMANCE (TEST SET)\n")
-cat("----------------------------------------------\n")
-print(as.data.frame(metrics))
-cat("\n")
-
-cat("3. AIM 1: LDA CLASSIFICATION PERFORMANCE\n")
-cat("----------------------------------------------\n")
-cat("LDA Accuracy: ", sprintf("%.2f%%", lda_accuracy * 100), "\n")
-cat("LDA Macro F1: ", sprintf("%.4f", lda_f1_macro), "\n\n")
-cat("Confusion Matrix (LDA):\n")
-print(lda_cm$table)
-cat("\n")
-
-cat("4. GRID SEARCH BEST PARAMETERS\n")
-cat("----------------------------------------------\n")
-cat("Elastic Net (5-fold CV):  alpha =", best_en$alpha, "| lambda =", best_en$lambda, "\n")
-cat("Decision Tree: cp =", best_tree$cp, "| maxdepth =", tree_maxdepth, "\n")
-cat("XGBoost (5-fold CV):      eta =", best_xgb$eta, "| max_depth =", best_xgb$max_depth, 
-    "| subsample =", best_xgb$subsample, "\n")
-
-cat("\n==============================================\n")
-cat("REPORT COMPLETE\n")
-
-sink() # Close file connection
+test_rmse_file <- file.path(results_dir, "ENet_Trees_XG_test_rmse_metrics.csv")
+write.csv(test_rmse_metrics, test_rmse_file, row.names = FALSE)
 
 cat(sprintf("Report saved to: %s\n", report_file))
 cat(sprintf("Confusion matrix saved to: %s\n", file.path(results_dir, "lda_confusion_matrix.csv")))
+cat(sprintf("Test RMSE metrics saved to: %s\n", test_rmse_file))
