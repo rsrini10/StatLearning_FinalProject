@@ -1,0 +1,79 @@
+Aim 2 — Model specification, tuning, and selection
+==================================================
+
+Data split
+----------
+A single hold-out split was used: 80% of foods for training and 20% for testing,
+with a fixed random seed (42) so the partition is reproducible. All tuning
+described below was performed using training observations only; the test set
+was held out until final evaluation (RMSE and MAE on test predictions).
+
+Preprocessing and scaling (avoiding CV leakage)
+-----------------------------------------------
+Raw micronutrient predictor matrices are stored as X_train_raw (training) and
+X_test_raw (test). Column z-scoring uses a helper scale_from_train(train_mat,
+test_mat): center and scale are computed from train_mat only, then applied to
+both train_mat and test_mat.
+
+Final fits for OLS, rpart, random forest, and k-NN use z-scores from the full
+training sample applied to training and test rows (no test statistics used).
+
+For 5-fold CV on those same learners, each fold recomputes z-scores using only
+the CV training rows of that fold to transform both the in-fold training and
+validation blocks — validation rows do not influence their own scaling.
+
+Ridge and LASSO (glmnet): cv.glmnet is fit on unscaled X_train_raw with
+standardize = TRUE so glmnet handles x standardization internally for the
+penalty path and cross-validation (no manual pre-scaling of glmnet inputs, and
+no double standardization). Test predictions use predict(..., newx = X_test_raw).
+
+Primary metric
+--------------
+Models are compared primarily by test RMSE (MAE also reported). R² / adjusted
+R² are not used for cross-method comparison.
+
+Shared 5-fold CV on the training set
+-------------------------------------
+All cross-validation uses the same fold assignment for training rows:
+set.seed(42) then sample(rep(1:5, length.out = n_train)). This fold vector is
+passed to glmnet as foldid so ridge/LASSO see identical row splits as rpart,
+random forest, and k-NN where applicable.
+
+Models fit (training data)
+--------------------------
+1) Ordinary least squares (OLS) — lm() on z-scored predictors; no
+   hyperparameters to tune. A 5-fold CV RMSE on training is reported for
+   reference only (with per-fold scaling as above).
+
+2) Ridge regression — glmnet::cv.glmnet on raw X_train_raw with alpha = 0,
+   family = "gaussian", standardize = TRUE, nfolds = 5, foldid = shared folds.
+   Lambda is chosen at lambda.min.
+
+3) LASSO — same as ridge with alpha = 1; lambda at lambda.min.
+
+4) Regression tree — rpart::rpart, method = "anova". A factorial grid over
+   complexity parameter cp, minbucket, and minsplit runs inside 5-fold CV with
+   per-fold z-scores; the triple with lowest mean CV RMSE is chosen and the
+   tree is refit on the full training z-scores.
+
+5) Random forest — randomForest::randomForest. A factorial grid over mtry and
+   ntree is evaluated with 5-fold CV and per-fold z-scores; the winning pair is
+   refit on full-training z-scores.
+
+6) k-nearest-neighbor regression — FNN::knn.reg. Neighbor count k is searched
+   on an odd grid with 5-fold CV and per-fold z-scores; best k minimizes mean CV
+   RMSE, then the model is refit on full-training z-scores.
+
+Model selection (reporting)
+---------------------------
+After tuning each method on training CV, the chosen hyperparameters are used to
+refit on the full training set and predict the held-out test set. Methods are
+ranked by test-set RMSE (MAE also reported). This is a single train/test split;
+the test set is not used for tuning.
+
+Outputs
+-------
+Metrics: results/regression_aim2_metrics.txt
+Fitted-object summaries (training): results/regression_aim2_model_summaries.txt
+Supplementary tuning tables (same run as metrics): results/supplementary_aim2_hyperparameter_*.csv and .txt
+Implementation: regression/predict_calories.R

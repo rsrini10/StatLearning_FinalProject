@@ -12,18 +12,23 @@ Response: Energy  | Micronutrient predictors: 34
 Excluded (examples): protein, fat, carbs, sugars, water, fiber, alcohol, cholesterol,
   total SFA/MUFA/PUFA, and all MUFA/PUFA/SFA detail columns.
 Train n: 4345  Test n: 1086 
-k-NN CV grid: 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25  -> best k: 3 
-Random forest: mtry = 5 , ntree = 400
+Tuning: shared 5-fold CV on training (set.seed(42) before fold_id_train assignment).
+  OLS: no hyperparameters; training 5-fold RMSE (reference) = 116.1569 
+  Ridge/LASSO: glmnet on raw training x, standardize=TRUE, nfolds=5 + foldid; lambda = lambda.min; test x unscaled
+  rpart: grid cp x minbucket x minsplit; best cp =1e-04, minbucket =3, minsplit =20
+  Random forest: mtry in {1, 9, 18, 26, 34}, ntree in {200, 400, 600}; best mtry =9, best ntree =400
+  k-NN: k in {3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25}; best k =3
 
-Test-set performance (lower RMSE/MAE is better):
+Scaling: OLS / rpart / RF / k-NN use z-scores from full training for final fit; CV for those models refits z-scores using CV training rows only. glmnet uses raw x with standardize=TRUE.
+Test-set performance (primary metric: RMSE; lower RMSE/MAE is better):
 
-                     Model     RMSE     MAE      R2
-             Random forest  50.9090 30.2372  0.8819
-     k-NN regression (k=3)  59.7932 33.2317  0.8371
-   Regression tree (rpart)  75.0360 45.6572  0.7434
-            LASSO (glmnet) 180.5559 83.3905 -0.4855
-            Ridge (glmnet) 252.7258 88.7366 -1.9104
- OLS (micronutrients only) 413.2599 91.4065 -6.7822
+                                        Model     RMSE     MAE
+ Random forest (5-fold CV, mtry=9, ntree=400)  49.5846 29.0598
+             k-NN regression (k=3, 5-fold CV)  59.7932 33.2317
+           Regression tree (rpart, 5-fold CV)  72.7776 42.2042
+                    LASSO (glmnet, 5-fold CV) 163.3312 82.6815
+                    Ridge (glmnet, 5-fold CV) 259.9108 88.7445
+                    OLS (micronutrients only) 413.2599 91.4065
 
 Plots (actual vs predicted, test set):
   /Users/conny/Desktop/BST 263/FinalProject/StatLearning_FinalProject/plots/regression/regression_aim2_actual_vs_predicted_grid.png
