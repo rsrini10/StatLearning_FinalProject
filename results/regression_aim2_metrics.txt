@@ -7,7 +7,7 @@ much caloric level is linearly/nonlinearly associated with micronutrient pattern
 supports follow-up work (e.g. ranking foods by micronutrient density = sum of scaled
 micronutrients per kcal, or studying residuals from these models).
 
-Data: food_nutrient_conc.csv 
+Data: ../food_nutrient_conc.csv 
 Response: Energy  | Micronutrient predictors: 34 
 Excluded (examples): protein, fat, carbs, sugars, water, fiber, alcohol, cholesterol,
   total SFA/MUFA/PUFA, and all MUFA/PUFA/SFA detail columns.

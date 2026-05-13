@@ -22,6 +22,15 @@ stopifnot(file.exists(path_food), file.exists(path_supervised))
 food <- read.csv(path_food, check.names = FALSE, stringsAsFactors = FALSE)
 sup  <- read.csv(path_supervised, check.names = FALSE, stringsAsFactors = FALSE)
 
+nutr_def <- if (file.exists("R/nutrient_definitions.R")) {
+  "R/nutrient_definitions.R"
+} else if (file.exists(file.path("..", "R", "nutrient_definitions.R"))) {
+  file.path("..", "R", "nutrient_definitions.R")
+} else {
+  stop("Cannot find R/nutrient_definitions.R (run from project root or parent directory).")
+}
+source(nutr_def, local = FALSE)
+
 # Table 1: characteristics of food_nutrient_conc.csv
 table1_path_csv <- file.path(results_dir, "table1_dataset_characteristics.csv")
 table1_path_txt <- file.path(results_dir, "table1_dataset_characteristics.txt")
@@ -241,28 +250,7 @@ cat("\n", strrep("=", 72), "\n", sep = "")
 cat("Micronutrient component distributions\n")
 cat(strrep("=", 72), "\n\n")
 
-macro_exact <- c(
-  "Total lipid (fat)",
-  "Total Sugars",
-  "Carbohydrate, by difference",
-  "Protein",
-  "Water",
-  "Fiber, total dietary",
-  "Alcohol, ethyl",
-  "Cholesterol",
-  "Fatty acids, total saturated",
-  "Fatty acids, total monounsaturated",
-  "Fatty acids, total polyunsaturated"
-)
-is_macro_or_fatty_acid_detail <- function(colnm) {
-  if (colnm %in% macro_exact) return(TRUE)
-  if (grepl("^MUFA |^PUFA |^SFA ", colnm, perl = TRUE)) return(TRUE)
-  FALSE
-}
-micronutr_cols <- names(food)[
-  !names(food) %in% c("", "Food_Name", "Energy") &
-    !vapply(names(food), is_macro_or_fatty_acid_detail, logical(1L))
-]
+micronutr_cols <- micronutrient_predictor_names(names(food), y_col = "Energy")
 
 micro_df <- food[, micronutr_cols, drop = FALSE]
 long_micro <- stack(micro_df)
