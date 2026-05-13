@@ -169,6 +169,97 @@ def save_plots_and_csv(
     out_tbl.to_csv(results_dir / "unsupervised_kmeans_assignments.csv", index=False)
 
 
+def save_extra_diagnostic_plots(
+    results_dir: Path,
+    plots_dir: Path,
+    *,
+    pca_pc_count: int = 15,
+) -> list[Path]:
+    """
+    Read notebook-exported grid CSVs and write figures that mirror the exploration
+    notebook (heatmaps and external-label agreement vs K).
+    """
+    plots_dir.mkdir(parents=True, exist_ok=True)
+    written: list[Path] = []
+    grid_path = results_dir / "unsupervised_grid_k_m_metrics.csv"
+    nopca_path = results_dir / "unsupervised_grid_k_no_pca_metrics.csv"
+    wweia_path = results_dir / "unsupervised_k_vs_wweia_nmi_ari.csv"
+
+    if grid_path.exists():
+        g = pd.read_csv(grid_path)
+        Ks = sorted(g["K"].unique())
+        ms = sorted(g["m"].unique())
+        mat = np.full((len(Ks), len(ms)), np.nan)
+        k_to_i = {k: i for i, k in enumerate(Ks)}
+        m_to_j = {m: j for j, m in enumerate(ms)}
+        for _, row in g.iterrows():
+            mat[k_to_i[int(row["K"])], m_to_j[int(row["m"])]] = float(row["silhouette"])
+
+        fig, ax = plt.subplots(figsize=(9, 5.5))
+        im = ax.imshow(mat, aspect="auto", origin="lower", cmap="viridis")
+        ax.set_xticks(np.arange(len(ms)))
+        ax.set_xticklabels(ms)
+        ax.set_yticks(np.arange(len(Ks)))
+        ax.set_yticklabels(Ks)
+        ax.set_xlabel("m = PCs used for k-means")
+        ax.set_ylabel("K = number of clusters")
+        ax.set_title("Internal silhouette (PCA + k-means grid)")
+        plt.colorbar(im, ax=ax, label="Silhouette", shrink=0.85)
+        fig.tight_layout()
+        out_hm = plots_dir / "silhouette_heatmap_k_vs_m.png"
+        fig.savefig(out_hm, dpi=150)
+        plt.close(fig)
+        written.append(out_hm)
+
+        if nopca_path.exists():
+            nop = pd.read_csv(nopca_path)
+            sub = g[g["m"] == float(pca_pc_count)].sort_values("K")
+            fig2, ax2 = plt.subplots(figsize=(9, 4.5))
+            ax2.plot(
+                sub["K"],
+                sub["silhouette"],
+                marker="o",
+                ms=5,
+                label=f"PCA + k-means (m = {pca_pc_count})",
+            )
+            ax2.plot(
+                nop["K"],
+                nop["silhouette"],
+                marker="s",
+                ms=5,
+                label="k-means on scaled nutrients (no PCA)",
+            )
+            ax2.set_xlabel("K")
+            ax2.set_ylabel("Silhouette")
+            ax2.set_title("Internal silhouette vs K: PCA vs no-PCA ablation")
+            ax2.legend(loc="best")
+            ax2.grid(True, alpha=0.25)
+            fig2.tight_layout()
+            out_cmp = plots_dir / "silhouette_vs_k_pca_m15_vs_nopca.png"
+            fig2.savefig(out_cmp, dpi=150)
+            plt.close(fig2)
+            written.append(out_cmp)
+
+    if wweia_path.exists():
+        w = pd.read_csv(wweia_path)
+        fig3, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(9, 6), sharex=True)
+        ax_top.plot(w["K"], w["NMI"], color="C0", marker="o", ms=4)
+        ax_top.set_ylabel("NMI")
+        ax_top.set_title("Agreement with WWEIA food groups vs K (not ground truth; see report)")
+        ax_top.grid(True, alpha=0.25)
+        ax_bot.plot(w["K"], w["ARI"], color="C1", marker="s", ms=4)
+        ax_bot.set_xlabel("K")
+        ax_bot.set_ylabel("ARI")
+        ax_bot.grid(True, alpha=0.25)
+        fig3.tight_layout()
+        out_w = plots_dir / "wweia_nmi_ari_vs_k.png"
+        fig3.savefig(out_w, dpi=150)
+        plt.close(fig3)
+        written.append(out_w)
+
+    return written
+
+
 def write_run_summary(
     result: PcaKMeansResult,
     *,
@@ -234,7 +325,30 @@ def main() -> None:
         help="Use every numeric column in the CSV (include macros and fatty-acid detail). "
         "Default: micronutrient-only columns per R/nutrient_definitions.R.",
     )
+    parser.add_argument(
+        "--extra-plots",
+        action="store_true",
+        help="After baseline run, also write figures from grid CSVs in results/ (heatmap, "
+        "PCA vs no-PCA silhouette, WWEIA NMI/ARI if those CSVs exist).",
+    )
+    parser.add_argument(
+        "--extra-plots-only",
+        action="store_true",
+        help="Only generate grid-based figures from existing results/*.csv (skip PCA/k-means).",
+    )
     args = parser.parse_args()
+
+    if args.extra_plots_only:
+        extra = save_extra_diagnostic_plots(args.results_dir, args.plots_dir)
+        if not extra:
+            print(
+                "No extra figures written — expected at least "
+                f"{args.results_dir / 'unsupervised_grid_k_m_metrics.csv'}."
+            )
+        else:
+            for p in extra:
+                print(f"Wrote {p}")
+        return
 
     X_raw, food_names = load_feature_matrix(
         args.data, micronutrients_only=not args.all_numeric_nutrients
@@ -266,6 +380,10 @@ def main() -> None:
     )
     print(f"Wrote plots under {args.plots_dir.resolve()}")
     print(f"Wrote assignments + summary under {args.results_dir.resolve()}")
+    if args.extra_plots:
+        extra = save_extra_diagnostic_plots(args.results_dir, args.plots_dir)
+        for p in extra:
+            print(f"Wrote {p}")
 
 
 if __name__ == "__main__":
