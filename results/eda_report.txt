@@ -363,4 +363,16 @@ Max Calorie per food:  902
 Min Calorie per food:  0 
 Standard Deviation of Calorie per food:  142.6956 
 
+========================================================================
+Micronutrient component distributions
+======================================================================== 
+
+Number of micronutrient components visualized: 34
+Micronutrient histogram panels exclude values equal to 0.
+Rows used in faceted histograms (value > 0): 130391
+Median % zeros across micronutrient components: 7.76%
+Max % zeros across micronutrient components: 96.45%
+Saved plot: plots/micronutrient_distributions_faceted.png
+Saved plot: plots/micronutrient_zero_percentage.png
+
 Done.
