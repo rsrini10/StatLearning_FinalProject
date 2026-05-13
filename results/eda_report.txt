@@ -1,0 +1,325 @@
+
+========================================================================
+food_nutrient_conc.csv 
+======================================================================== 
+
+Dimensions (rows x columns): 5431 x 67
+
+Column names (first 15):
+ [1] ""                    "Food_Name"           "Calcium, Ca"         "Retinol"             "Lycopene"           
+ [6] "MUFA 20:1"           "PUFA 20:5 n-3 (EPA)" "SFA 14:0"            "Total Sugars"        "Carotene, beta"     
+[11] "Total lipid (fat)"   "Thiamin"             "Vitamin B-12, added" "PUFA 18:3"           "PUFA 18:2"          
+... and 52 more columns
+
+Column classes:
+
+character   integer   numeric 
+        1        21        45 
+
+No missing values (NA) in any column.
+
+Summary of numeric columns (min / Q1 / median / mean / Q3 / max):
+     Calcium, Ca   Retinol   Lycopene MUFA 20:1 PUFA 20:5 n-3 (EPA) SFA 14:0 Total Sugars Carotene, beta
+0%        0.0000    0.0000     0.0000     0.000              0.0000   0.0000       0.0000         0.0000
+25%      14.0000    0.0000     0.0000     0.001              0.0000   0.0050       0.7100         0.0000
+50%      34.0000    5.0000     0.0000     0.015              0.0000   0.0510       2.3300         8.0000
+75%      90.5000   35.0000     0.0000     0.040              0.0010   0.2215       7.0400        76.0000
+mean     72.4309   38.0068   278.9809     0.038              0.0076   0.2246       6.8429       250.5699
+max    1375.0000 7667.0000 45902.0000     3.648              2.7410  16.7000      99.8000     14134.0000
+     Total lipid (fat) Thiamin Vitamin B-12, added PUFA 18:3
+0%              0.0000  0.0000              0.0000    0.0000
+25%             2.1200  0.0410              0.0000    0.0290
+50%             6.0000  0.0850              0.0000    0.0950
+75%            13.0450  0.1960              0.0000    0.1980
+mean            9.2923  0.1598              0.0507    0.2058
+max           100.0000 23.3750              8.0800   53.3680
+(53 additional numeric columns omitted here; see summary(df) locally.)
+
+Character/factor column: Food_Name — 5431 distinct values
+Top 15 levels:
+
+                                        Abalone                             Adobo, with noodles 
+                                              1                                               1 
+                               Adobo, with rice                          Agave liquid sweetener 
+                                              1                                               1 
+                         Alcoholic coffee drink                         Alcoholic malt beverage 
+                                              1                                               1 
+             Alcoholic malt beverage, sweetened                            Alfalfa sprouts, raw 
+                                              1                                               1 
+                                  Alfredo sauce             Alfredo sauce with added vegetables 
+                                              1                                               1 
+                        Alfredo sauce with meat    Alfredo sauce with meat and added vegetables 
+                                              1                                               1 
+                     Alfredo sauce with poultry Alfredo sauce with poultry and added vegetables 
+                                              1                                               1 
+                     Alfredo sauce with seafood 
+                                              1 
+
+
+========================================================================
+supervised_table.csv 
+======================================================================== 
+
+Dimensions (rows x columns): 5431 x 69
+
+Column names (first 15):
+ [1] ""                    "X"                   "Food_Name"           "Calcium..Ca"         "Retinol"            
+ [6] "Lycopene"            "MUFA.20.1"           "PUFA.20.5.n.3..EPA." "SFA.14.0"            "Total.Sugars"       
+[11] "Carotene..beta"      "Total.lipid..fat."   "Thiamin"             "Vitamin.B.12..added" "PUFA.18.3"          
+... and 54 more columns
+
+Column classes:
+
+character   integer   numeric 
+        2        22        45 
+
+No missing values (NA) in any column.
+
+Summary of numeric columns (min / Q1 / median / mean / Q3 / max):
+     Calcium..Ca   Retinol   Lycopene MUFA.20.1 PUFA.20.5.n.3..EPA. SFA.14.0 Total.Sugars Carotene..beta
+0%        0.0000    0.0000     0.0000     0.000              0.0000   0.0000       0.0000         0.0000
+25%      14.0000    0.0000     0.0000     0.001              0.0000   0.0050       0.7100         0.0000
+50%      34.0000    5.0000     0.0000     0.015              0.0000   0.0510       2.3300         8.0000
+75%      90.5000   35.0000     0.0000     0.040              0.0010   0.2215       7.0400        76.0000
+mean     72.4309   38.0068   278.9809     0.038              0.0076   0.2246       6.8429       250.5699
+max    1375.0000 7667.0000 45902.0000     3.648              2.7410  16.7000      99.8000     14134.0000
+     Total.lipid..fat. Thiamin Vitamin.B.12..added PUFA.18.3
+0%              0.0000  0.0000              0.0000    0.0000
+25%             2.1200  0.0410              0.0000    0.0290
+50%             6.0000  0.0850              0.0000    0.0950
+75%            13.0450  0.1960              0.0000    0.1980
+mean            9.2923  0.1598              0.0507    0.2058
+max           100.0000 23.3750              8.0800   53.3680
+(53 additional numeric columns omitted here; see summary(df) locally.)
+
+Character/factor column: Food_Name — 5431 distinct values
+Top 15 levels:
+
+                                        Abalone                             Adobo, with noodles 
+                                              1                                               1 
+                               Adobo, with rice                          Agave liquid sweetener 
+                                              1                                               1 
+                         Alcoholic coffee drink                         Alcoholic malt beverage 
+                                              1                                               1 
+             Alcoholic malt beverage, sweetened                            Alfalfa sprouts, raw 
+                                              1                                               1 
+                                  Alfredo sauce             Alfredo sauce with added vegetables 
+                                              1                                               1 
+                        Alfredo sauce with meat    Alfredo sauce with meat and added vegetables 
+                                              1                                               1 
+                     Alfredo sauce with poultry Alfredo sauce with poultry and added vegetables 
+                                              1                                               1 
+                     Alfredo sauce with seafood 
+                                              1 
+
+Character/factor column: wweia_food_category_description — 171 distinct values
+Top 15 levels:
+
+                               Meat mixed dishes Pasta mixed dishes, excludes macaroni and cheese 
+                                             233                                              174 
+                           Chicken, whole pieces                                 Eggs and omelets 
+                                             160                                              147 
+               Other vegetables and combinations                             Poultry mixed dishes 
+                                             147                                              133 
+                               Rice mixed dishes                                     Yeast breads 
+                                             132                                              113 
+                                          Coffee                                             Fish 
+                                             109                                              109 
+                            Cookies and brownies                             Seafood mixed dishes 
+                                             102                                               96 
+                                           Pizza                                   Cakes and pies 
+                                              91                                               89 
+                                  Nuts and seeds 
+                                              78 
+
+======================================================================== 
+Supervised label: wweia_food_category_description
+======================================================================== 
+
+Number of classes: 171 
+Class counts (sorted):
+y
+                               Meat mixed dishes Pasta mixed dishes, excludes macaroni and cheese 
+                                             233                                              174 
+                           Chicken, whole pieces                                 Eggs and omelets 
+                                             160                                              147 
+               Other vegetables and combinations                             Poultry mixed dishes 
+                                             147                                              133 
+                               Rice mixed dishes                                     Yeast breads 
+                                             132                                              113 
+                                          Coffee                                             Fish 
+                                             109                                              109 
+                            Cookies and brownies                             Seafood mixed dishes 
+                                             102                                               96 
+                                           Pizza                                   Cakes and pies 
+                                              91                                               89 
+                                  Nuts and seeds                  Not included in a food category 
+                                              78                                               77 
+                            Beans, peas, legumes            Stir-fry and soy-based sauce mixtures 
+                                              75                                               70 
+                            Liquor and cocktails                 Doughnuts, sweet rolls, pastries 
+                                              69                                               66 
+                  Deli and cured meat sandwiches                                          Burgers 
+                                              63                                               62 
+             Ice cream and frozen dairy desserts                      Dips, gravies, other sauces 
+                                              60                                               59 
+                                          Cheese                      Crackers, excludes saltines 
+                                              58                                               56 
+       Mashed potatoes and white potato mixtures                  Pancakes, waffles, French toast 
+                                              56                                               54 
+                      Other Mexican mixed dishes               Salad dressings and vegetable oils 
+                                              52                                               51 
+                   Formula, prepared from powder                      Other dark green vegetables 
+                                              50                                               50 
+                                    Fruit drinks                  Biscuits, muffins, quick breads 
+                                              49                                               48 
+                              Burritos and tacos                  White potatoes, baked or boiled 
+                                              48                                               48 
+                        Egg/breakfast sandwiches                               Soups, broth-based 
+                                              47                                               47 
+                     Turkey, duck, other poultry                               Pretzels/snack mix 
+                                              46                                               45 
+                                             Tea                        Cold cuts and cured meats 
+                                              45                                               44 
+     French fries and other fried white potatoes                      Fried rice and lo/chow mein 
+                                              44                                               44 
+                   Other fruits and fruit salads                                        Shellfish 
+                                              42                                               41 
+                        Other starchy vegetables                                   Rolls and buns 
+                                              39                                               37 
+                          Jams, syrups, toppings            Turnovers and other grain-based items 
+                                              36                                               36 
+                           Beef, excludes ground                                 Vegetable dishes 
+                                              34                                               34 
+                                     Cereal bars                      Tortilla, corn, other chips 
+                                              33                                               32 
+                      Bagels and English muffins              Olives, pickles, pickled vegetables 
+                                              30                                               30 
+                                            Rice                           Frankfurter sandwiches 
+                                              30                                               29 
+                    Mustard and other condiments                                     Potato chips 
+                                              28                                               27 
+                  Grits and other cooked cereals                                          Popcorn 
+                                              26                                               26 
+                                            Pork                                          Pudding 
+                                              26                                               26 
+                      Candy containing chocolate                      Egg rolls, dumplings, sushi 
+                                              25                                               25 
+                      Smoothies and grain drinks                         Bean, pea, legume dishes 
+                                              25                                               23 
+                  Candy not containing chocolate               Peanut butter and jelly sandwiches 
+                                              23                                               22 
+ Ready-to-eat cereal, higher sugar (>21.2g/100g)                        Chicken fillet sandwiches 
+                                              22                                               21 
+                                Fried vegetables                                          Oatmeal 
+                                              21                                               21 
+                                        Sausages                                          Carrots 
+                                              21                                               20 
+                                            Corn                          Meat and BBQ sandwiches 
+                                              20                                               20 
+                 Other red and orange vegetables  Ready-to-eat cereal, lower sugar (=<21.2g/100g) 
+                                              20                                               20 
+                              Seafood sandwiches                                     String beans 
+                                              20                                               20 
+                               Other fruit juice                          Sport and energy drinks 
+                                              19                                               19 
+                     Cream and cream substitutes                                     Dried fruits 
+                                              18                                               18 
+                                Lamb, goat, game                    Pasta, noodles, cooked grains 
+                                              18                                               18 
+                                Plant-based milk                Soy and meat-alternative products 
+                                              18                                               18 
+                    Coleslaw, non-lettuce salads                           Formula, ready-to-feed 
+                                              17                                               17 
+                         Gelatins, ices, sorbets                  Protein and nutritional powders 
+                                              17                                               17 
+                                 Yogurt, regular                           Cottage/ricotta cheese 
+                                              17                                               16 
+                             Macaroni and cheese                                         Broccoli 
+                                              16                                               15 
+            Chicken patties, nuggets and tenders                            Nutritional beverages 
+                                              15                                               15 
+               Ramen and Asian broth-based soups                                          Spinach 
+                                              15                                               15 
+                              Baby food: cereals                            Baby food: vegetables 
+                                              14                                               14 
+                               Cheese sandwiches                       Lettuce and lettuce salads 
+                                              14                                               14 
+                                   Yogurt, Greek                                 Baby food: fruit 
+                                              14                                               13 
+         Cream cheese, sour cream, whipped cream                                 Diet soft drinks 
+                                              13                                               13 
+                           Liver and organ meats               Milk shakes and other dairy drinks 
+                                              13                                               13 
+                                  Nutrition bars                                      Soft drinks 
+                                              13                                               13 
+                              Soups, cream-based                                             Wine 
+                                              13                                               13 
+                             Baby food: mixtures                                            Bacon 
+                                              12                                               12 
+                                    Citrus juice                     Diet sport and energy drinks 
+                                              12                                               12 
+                      Flavored milk, reduced fat                          Tomato-based condiments 
+                                              12                                               12 
+                     Baby food: meat and dinners                     Baby food: snacks and sweets 
+                                              11                                               11 
+                   Blueberries and other berries                                          Cabbage 
+                                              11                                               11 
+                                   Citrus fruits                       Pasta sauces, tomato-based 
+                                              11                                               11 
+                    Vegetable sandwiches/burgers                           Butter and animal fats 
+                                              11                                               10 
+                                      Mayonnaise                             Soy-based condiments 
+                                              10                                               10 
+                               Sugar substitutes                            Flavored milk, nonfat 
+                                              10                                                9 
+                                 Vegetable juice                                             Beer 
+                                               9                                                8 
+                                       Margarine                                 Sugars and honey 
+                                               8                                                8 
+                        Vegetables on a sandwich                                           Apples 
+                                               8                                                7 
+                           Flavored milk, lowfat                                      Milk, whole 
+                                               7                                                7 
+                                          Nachos                                           Onions 
+                                               7                                                7 
+                                       Tortillas                                       Baby juice 
+                                               7                                                6 
+                               Other diet drinks                           Peaches and nectarines 
+                                               6                                                6 
+                                        Tomatoes                     Flavored or carbonated water 
+                                               6                                                5 
+                                    Frankfurters                                      Ground beef 
+                                               5                                                5 
+                                Mango and papaya                                            Pears 
+                                               5                                                5 
+                                       Pineapple                                 Saltine crackers 
+                                               5                                                5 
+                            Flavored milk, whole                                           Melons 
+                                               4                                                4 
+                                    Milk, nonfat                                Milk, reduced fat 
+                                               4                                                4 
+                                     Apple juice                                     Milk, lowfat 
+                                               3                                                3 
+                              Plant-based yogurt                                     Strawberries 
+                                               3                                                3 
+                               Baby food: yogurt                                          Bananas 
+                                               2                                                2 
+                                  Enhanced water                                        Tap water 
+                                               2                                                2 
+                                      Baby water                                    Bottled water 
+                                               1                                                1 
+                                          Grapes 
+                                               1 
+
+========================================================================
+Cross-dataset checks
+======================================================================== 
+
+Row counts — food: 5431  supervised: 5431 
+Food_Name sets identical: TRUE 
+Row order Food_Name identical: TRUE 
+Nutrient-like columns in food only (not in supervised): Calcium, Ca, MUFA 20:1, PUFA 20:5 n-3 (EPA), SFA 14:0, Total Sugars, Carotene, beta, Total lipid (fat), Vitamin B-12, added, PUFA 18:3, PUFA 18:2, Phosphorus, P, Folic acid, Vitamin E (alpha-tocopherol), Vitamin B-6, Folate, DFE, Cryptoxanthin, beta, Fatty acids, total saturated, SFA 8:0, Zinc, Zn, Magnesium, Mg, Folate, food, SFA 12:0, SFA 16:0, Alcohol, ethyl, Fatty acids, total monounsaturated, Copper, Cu, PUFA 20:4, Choline, total, Carbohydrate, by difference, Carotene, alpha, Vitamin K (phylloquinone), Vitamin B-12, SFA 6:0, PUFA 22:6 n-3 (DHA), PUFA 18:4, Fiber, total dietary, MUFA 16:1, Fatty acids, total polyunsaturated, PUFA 22:5 n-3 (DPA), Lutein + zeaxanthin, Vitamin D (D2 + D3), Potassium, K, Iron, Fe, SFA 10:0, MUFA 22:1, Selenium, Se, Vitamin A, RAE, Vitamin E, added, Folate, total, Sodium, Na, Vitamin C, total ascorbic acid, SFA 18:0, MUFA 18:1, SFA 4:0
+Nutrient-like columns in supervised only (not in food): Calcium..Ca, MUFA.20.1, PUFA.20.5.n.3..EPA., SFA.14.0, Total.Sugars, Carotene..beta, Total.lipid..fat., Vitamin.B.12..added, PUFA.18.3, PUFA.18.2, Phosphorus..P, Folic.acid, Vitamin.E..alpha.tocopherol., Vitamin.B.6, Folate..DFE, Cryptoxanthin..beta, Fatty.acids..total.saturated, SFA.8.0, Zinc..Zn, Magnesium..Mg, Folate..food, SFA.12.0, SFA.16.0, Alcohol..ethyl, Fatty.acids..total.monounsaturated, Copper..Cu, PUFA.20.4, Choline..total, Carbohydrate..by.difference, Carotene..alpha, Vitamin.K..phylloquinone., Vitamin.B.12, SFA.6.0, PUFA.22.6.n.3..DHA., PUFA.18.4, Fiber..total.dietary, MUFA.16.1, Fatty.acids..total.polyunsaturated, PUFA.22.5.n.3..DPA., Lutein...zeaxanthin, Vitamin.D..D2...D3., Potassium..K, Iron..Fe, SFA.10.0, MUFA.22.1, Selenium..Se, Vitamin.A..RAE, Vitamin.E..added, Folate..total, Sodium..Na, Vitamin.C..total.ascorbic.acid, SFA.18.0, MUFA.18.1, SFA.4.0
+
+Done.
