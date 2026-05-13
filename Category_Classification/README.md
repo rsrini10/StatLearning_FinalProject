@@ -2,20 +2,31 @@
 
 ## Random Forest Model 1
 
-70:30 Train Test Split
+### Data Split
+- 70:30 train-test split
 
-Predictors: All the nutrients 65 variables
-Outcome: The food category (171 unique classes)
-Hyperparameters:
--	number of trees = 500
--	variables sampled at each split = 8
-Misclassification Rate = 0.197
+### Model Specification
+- Predictors: All nutrient variables (65 total)
+- Outcome: Food category (171 unique classes)
 
+### Hyperparameters
+- Number of trees: 500
+- Variables sampled at each split: 8
 
-## Random Forest Model 2:
+### Performance
+- Misclassification rate: 0.197
 
-Predictors: 10 most important variables
-Hyperparameters:
-- number of trees = 500
-- variables sampled at each split = 3
-Misclassification Rate: 0.251
+---
+
+## Random Forest Model 2
+
+### Model Specification
+- Predictors: 10 most important variables
+- Outcome: Food category (171 unique classes)
+
+### Hyperparameters
+- Number of trees: 500
+- Variables sampled at each split: 3
+
+### Performance
+- Misclassification rate: 0.251
