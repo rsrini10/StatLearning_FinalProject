@@ -27,25 +27,28 @@ Discover **structure in USDA foods** using only **micronutrient composition** (v
 
 | Artifact | Purpose |
 |----------|---------|
-| `unsupervised_learning/unsupervised_pca_kmeans.py` | CLI: baseline figures, assignments CSV, optional **grid-based** figures (`--extra-plots` or `--extra-plots-only`) |
+| `unsupervised_learning/unsupervised_pca_kmeans.py` | CLI: baseline figures, extra **PC1–PC2** scatters for other *K* (`--also-pc-scatter-k`, default `4 50`), assignments CSV, optional grid figures (`--extra-plots` or `--extra-plots-only`) |
 | `unsupervised_learning/pca_kmeans_exploration.ipynb` | Narrative, **(K, m)** grid, no-PCA ablation, PC loadings, WWEIA comparison exports |
 
 Run the script from `unsupervised_learning/`:
 
 ```bash
 python unsupervised_pca_kmeans.py
-python unsupervised_pca_kmeans.py --extra-plots          # after grid CSVs exist
-python unsupervised_pca_kmeans.py --extra-plots-only       # refresh figures from results/*.csv only
+python unsupervised_pca_kmeans.py --also-pc-scatter-k 4 48 50   # override which K’s get PC1–PC2 PNGs
+python unsupervised_pca_kmeans.py --also-pc-scatter-k            # omit: skip extra K scatter files
+python unsupervised_pca_kmeans.py --extra-plots                  # after grid CSVs exist
+python unsupervised_pca_kmeans.py --extra-plots-only             # refresh figures from results/*.csv only
 ```
 
-Options: `--k`, `--pc-kmeans`, `--seed`, `--all-numeric-nutrients`, `--plots-dir`, `--results-dir`.
+Options: `--k`, `--pc-kmeans`, `--seed`, `--all-numeric-nutrients`, `--plots-dir`, `--results-dir`, `--also-pc-scatter-k` (default `4 50`; use the flag alone with no numbers to skip).
 
 ## Outputs (repository convention)
 
 **Figures** — `plots/unsupervised/`
 
 - `pca_scree.png` — explained variance for leading PCs (baseline run)  
-- `pca_pc1_pc2_kmeans.png` — PC1 vs PC2 colored by baseline cluster  
+- `pca_pc1_pc2_kmeans.png` — PC1 vs PC2 colored by cluster for the run’s `--k` (default 8)  
+- `pca_pc1_pc2_kmeans_k4.png`, `pca_pc1_pc2_kmeans_k50.png` — same axes with **refit** k-means at *K* = 4 (often strong internal silhouette at small *K* in our grid) and *K* = 50 (finer clusters; NMI vs WWEIA often higher in our scan—see `wweia_nmi_ari_vs_k.png`; **ARI may stay low**). Use `--also-pc-scatter-k` to add e.g. *K* = 48 (NMI peak in `unsupervised_k_vs_wweia_nmi_ari.csv`).  
 - `silhouette_heatmap_k_vs_m.png` — internal silhouette over the *(K, m)* grid (`--extra-plots`)  
 - `silhouette_vs_k_pca_m15_vs_nopca.png` — PCA (*m* = 15) vs **no PCA** silhouette vs *K* (`--extra-plots`)  
 - `wweia_nmi_ari_vs_k.png` — **NMI** and **ARI** vs *K* vs WWEIA groups (`--extra-plots`, requires CSV below)

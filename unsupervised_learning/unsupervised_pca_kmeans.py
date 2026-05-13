@@ -14,6 +14,7 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -72,15 +73,14 @@ class PcaKMeansResult:
     n_pc_kmeans: int
 
 
-def fit_pca_kmeans(
+def fit_preprocess_pca(
     X_raw: pd.DataFrame,
     food_names: pd.Series,
     *,
-    k: int = DEFAULT_K_CLUSTERS,
     pc_kmeans: int = DEFAULT_N_COMPONENTS_KMEANS,
     seed: int = 42,
-) -> PcaKMeansResult:
-    """Median-impute, scale, PCA, then k-means on the first `pc_kmeans` PC scores."""
+) -> tuple[Pipeline, PCA, np.ndarray, int]:
+    """Median-impute, scale, full PCA; return PC score matrix and ``n_pc_kmeans`` cap."""
     n_samples, n_features = X_raw.shape
     preprocess = Pipeline(
         steps=[
@@ -95,11 +95,36 @@ def fit_pca_kmeans(
 
     pca_full = PCA(random_state=seed)
     Z_full = pca_full.fit_transform(X)
+    return preprocess, pca_full, Z_full, n_pc_kmeans
 
-    Z_kmeans = Z_full[:, :n_pc_kmeans]
+
+def kmeans_on_pc_block(
+    Z_full: np.ndarray,
+    n_pc_kmeans: int,
+    k: int,
+    seed: int,
+) -> tuple[KMeans, np.ndarray, float]:
+    """k-means on ``Z_full[:, :n_pc_kmeans]``."""
+    Z_k = Z_full[:, :n_pc_kmeans]
     km = KMeans(n_clusters=k, random_state=seed, n_init="auto")
-    labels = km.fit_predict(Z_kmeans)
-    sil = silhouette_score(Z_kmeans, labels)
+    labels = km.fit_predict(Z_k)
+    sil = silhouette_score(Z_k, labels)
+    return km, labels, sil
+
+
+def fit_pca_kmeans(
+    X_raw: pd.DataFrame,
+    food_names: pd.Series,
+    *,
+    k: int = DEFAULT_K_CLUSTERS,
+    pc_kmeans: int = DEFAULT_N_COMPONENTS_KMEANS,
+    seed: int = 42,
+) -> PcaKMeansResult:
+    """Median-impute, scale, PCA, then k-means on the first `pc_kmeans` PC scores."""
+    preprocess, pca_full, Z_full, n_pc_kmeans = fit_preprocess_pca(
+        X_raw, food_names, pc_kmeans=pc_kmeans, seed=seed
+    )
+    km, labels, sil = kmeans_on_pc_block(Z_full, n_pc_kmeans, k, seed)
 
     return PcaKMeansResult(
         preprocess=preprocess,
@@ -111,6 +136,98 @@ def fit_pca_kmeans(
         silhouette=sil,
         n_pc_kmeans=n_pc_kmeans,
     )
+
+
+def _discrete_cmap(n_cluster: int):
+    """Colormap that supports K > 10 (``tab10`` is too small)."""
+    n = max(int(n_cluster), 2)
+    try:
+        base = mpl.colormaps["turbo"]
+        if hasattr(base, "resampled"):
+            return base.resampled(n)
+    except (AttributeError, KeyError, TypeError):
+        pass
+    return plt.get_cmap("turbo", n)
+
+
+def save_pc1_pc2_kmeans_figure(
+    Z: np.ndarray,
+    evr: np.ndarray,
+    cluster_labels: np.ndarray,
+    *,
+    k: int,
+    n_pc_kmeans: int,
+    out_path: Path,
+    title_suffix: str = "",
+) -> None:
+    """Single PC1 vs PC2 scatter colored by cluster (2D view of space; k-means may use more PCs)."""
+    fig, ax = plt.subplots(figsize=(9, 7))
+    cmap = _discrete_cmap(k)
+    scatter = ax.scatter(
+        Z[:, 0],
+        Z[:, 1],
+        c=cluster_labels,
+        cmap=cmap,
+        vmin=0,
+        vmax=max(k - 1, 0),
+        alpha=0.55,
+        s=12,
+        linewidths=0,
+    )
+    ax.set_xlabel(f"PC1 ({evr[0]*100:.1f}% var)")
+    ax.set_ylabel(f"PC2 ({evr[1]*100:.1f}% var)")
+    title = (
+        f"PCA projection (K-means K={k}, fitted on first {n_pc_kmeans} PCs)"
+        f"{title_suffix}"
+    )
+    ax.set_title(title)
+    cbar = plt.colorbar(scatter, ax=ax, label="cluster")
+    # avoid crowding tick labels for large K
+    if k > 16:
+        cbar.ax.tick_params(labelsize=7)
+    fig.tight_layout()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+
+
+def save_extra_k_pc_projection_plots(
+    Z_full: np.ndarray,
+    evr: np.ndarray,
+    *,
+    n_pc_kmeans: int,
+    k_values: list[int],
+    seed: int,
+    plots_dir: Path,
+) -> list[Path]:
+    """
+    For each K, refit k-means on the same PC subspace and save
+    ``pca_pc1_pc2_kmeans_k<K>.png``.
+    """
+    written: list[Path] = []
+    for k in k_values:
+        k = int(k)
+        if k < 2:
+            continue
+        _, labels, _ = kmeans_on_pc_block(Z_full, n_pc_kmeans, k, seed)
+        if k == 4:
+            suffix = " — small K; strong internal silhouette in our grid"
+        elif k >= 40:
+            suffix = " — large K; NMI vs WWEIA often higher; ARI may stay low"
+        else:
+            suffix = ""
+        out = plots_dir / f"pca_pc1_pc2_kmeans_k{k}.png"
+        save_pc1_pc2_kmeans_figure(
+            Z_full,
+            evr,
+            labels,
+            k=k,
+            n_pc_kmeans=n_pc_kmeans,
+            out_path=out,
+            title_suffix=suffix,
+        )
+        written.append(out)
+    return written
 
 
 def save_plots_and_csv(
@@ -140,23 +257,14 @@ def save_plots_and_csv(
     fig1.savefig(plots_dir / "pca_scree.png", dpi=150)
     plt.close(fig1)
 
-    fig2, ax2 = plt.subplots(figsize=(9, 7))
-    scatter = ax2.scatter(
-        Z[:, 0],
-        Z[:, 1],
-        c=result.cluster_labels,
-        cmap="tab10",
-        alpha=0.55,
-        s=12,
-        linewidths=0,
+    save_pc1_pc2_kmeans_figure(
+        Z,
+        evr,
+        result.cluster_labels,
+        k=int(km.n_clusters),
+        n_pc_kmeans=result.n_pc_kmeans,
+        out_path=plots_dir / "pca_pc1_pc2_kmeans.png",
     )
-    ax2.set_xlabel(f"PC1 ({evr[0]*100:.1f}% var)")
-    ax2.set_ylabel(f"PC2 ({evr[1]*100:.1f}% var)")
-    ax2.set_title(f"PCA projection (K-means K={km.n_clusters}, fitted on first {result.n_pc_kmeans} PCs)")
-    plt.colorbar(scatter, ax=ax2, label="cluster")
-    fig2.tight_layout()
-    fig2.savefig(plots_dir / "pca_pc1_pc2_kmeans.png", dpi=150)
-    plt.close(fig2)
 
     out_tbl = pd.DataFrame(
         {
@@ -289,6 +397,7 @@ def write_run_summary(
         "Outputs:",
         f"  plots/unsupervised/pca_scree.png",
         f"  plots/unsupervised/pca_pc1_pc2_kmeans.png",
+        "  plots/unsupervised/pca_pc1_pc2_kmeans_k<K>.png (if --also-pc-scatter-k used)",
         f"  results/unsupervised_kmeans_assignments.csv",
         "",
     ]
@@ -336,6 +445,16 @@ def main() -> None:
         action="store_true",
         help="Only generate grid-based figures from existing results/*.csv (skip PCA/k-means).",
     )
+    parser.add_argument(
+        "--also-pc-scatter-k",
+        type=int,
+        nargs="*",
+        default=[4, 50],
+        metavar="K",
+        help="Additional K values: write pca_pc1_pc2_kmeans_k<K>.png using the same PCA and m "
+        "as the main run (omit extra figures by passing this flag with no values). "
+        "Default: 4 50 (compare small-K silhouette choice vs large-K / WWEIA-informed K).",
+    )
     args = parser.parse_args()
 
     if args.extra_plots_only:
@@ -368,6 +487,19 @@ def main() -> None:
     )
 
     save_plots_and_csv(result, args.plots_dir, results_dir=args.results_dir)
+
+    extra_k = sorted({k for k in args.also_pc_scatter_k if k >= 2 and k != args.k})
+    if extra_k:
+        for p in save_extra_k_pc_projection_plots(
+            result.Z,
+            evr,
+            n_pc_kmeans=result.n_pc_kmeans,
+            k_values=extra_k,
+            seed=args.seed,
+            plots_dir=args.plots_dir,
+        ):
+            print(f"Wrote {p}")
+
     write_run_summary(
         result,
         data_path=args.data,

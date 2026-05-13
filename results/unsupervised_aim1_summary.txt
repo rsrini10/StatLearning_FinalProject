@@ -13,4 +13,5 @@ Cumulative variance (first 15 PCs): 0.8280
 Outputs:
   plots/unsupervised/pca_scree.png
   plots/unsupervised/pca_pc1_pc2_kmeans.png
+  plots/unsupervised/pca_pc1_pc2_kmeans_k<K>.png (if --also-pc-scatter-k used)
   results/unsupervised_kmeans_assignments.csv
