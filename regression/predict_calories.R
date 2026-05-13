@@ -30,6 +30,15 @@ csv <- if (file.exists("food_nutrient_conc.csv")) {
   stop("Cannot find food_nutrient_conc.csv (run from project root or regression/).")
 }
 
+nutr_def <- if (file.exists("R/nutrient_definitions.R")) {
+  "R/nutrient_definitions.R"
+} else if (file.exists(file.path("..", "R", "nutrient_definitions.R"))) {
+  file.path("..", "R", "nutrient_definitions.R")
+} else {
+  stop("Cannot find R/nutrient_definitions.R (run from project root or regression/).")
+}
+source(nutr_def, local = FALSE)
+
 results_dir <- if (dir.exists("results")) "results" else file.path("..", "results")
 dir.create(results_dir, showWarnings = FALSE, recursive = TRUE)
 out_metrics <- file.path(results_dir, "regression_aim2_metrics.txt")
@@ -40,31 +49,8 @@ y_col <- "Energy"
 stopifnot(y_col %in% names(dat))
 
 nm <- names(dat)
-drop_id <- nm %in% c("", "Food_Name", y_col)
-
-# Exclude macronutrients and detailed fatty acids so predictors reflect
-# micronutrients + related non-macro compounds (vitamins, minerals, carotenoids, etc.).
-macro_exact <- c(
-  "Total lipid (fat)",
-  "Total Sugars",
-  "Carbohydrate, by difference",
-  "Protein",
-  "Water",
-  "Fiber, total dietary",
-  "Alcohol, ethyl",
-  "Cholesterol",
-  "Fatty acids, total saturated",
-  "Fatty acids, total monounsaturated",
-  "Fatty acids, total polyunsaturated"
-)
-
-is_macro_or_fatty_acid_detail <- function(colnm) {
-  if (colnm %in% macro_exact) return(TRUE)
-  if (grepl("^MUFA |^PUFA |^SFA ", colnm, perl = TRUE)) return(TRUE)
-  FALSE
-}
-
-pred_names <- nm[!drop_id & !vapply(nm, is_macro_or_fatty_acid_detail, logical(1L))]
+# Exclude macronutrients and detailed fatty acids (see R/nutrient_definitions.R).
+pred_names <- micronutrient_predictor_names(nm, y_col = y_col)
 X <- dat[, pred_names, drop = FALSE]
 if (!all(sapply(X, is.numeric))) {
   stop("All micronutrient predictors must be numeric.")

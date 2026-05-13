@@ -1,5 +1,5 @@
 Aim 2: Model summaries (training data; micronutrient predictors only)
-Data: food_nutrient_conc.csv 
+Data: ../food_nutrient_conc.csv 
 Train n: 4345 
 
 ================================================================================ 
