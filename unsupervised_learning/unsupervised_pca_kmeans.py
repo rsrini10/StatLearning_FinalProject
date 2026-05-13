@@ -4,7 +4,8 @@ Baseline pipeline: scale nutrients -> PCA -> k-means on PC scores -> plots.
 
 Data live one directory up: ../food_nutrient_conc.csv (repo root of CSV exports).
 
-Hyperparameters are intentionally simple for a first pass; swap in CV / grid search later.
+By default, only **micronutrient** columns are used (same rules as R/nutrient_definitions.R);
+use --all-numeric-nutrients for every numeric column in the CSV.
 """
 
 from __future__ import annotations
@@ -23,20 +24,39 @@ from sklearn.metrics import silhouette_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
+from nutrient_definitions import micronutrient_column_names
+
 # Repo layout: StatLearning_FinalProject/food_nutrient_conc.csv (parent of this folder)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PLOTS_DIR_UNSUPERVISED = PROJECT_ROOT / "plots" / "unsupervised"
+RESULTS_DIR = PROJECT_ROOT / "results"
 
 DEFAULT_K_CLUSTERS = 8
 DEFAULT_N_COMPONENTS_KMEANS = 15
 SCREE_PLOT_COMPONENTS = 25
 
 
-def load_feature_matrix(csv_path: Path) -> tuple[pd.DataFrame, pd.Series]:
+def load_feature_matrix(
+    csv_path: Path,
+    *,
+    micronutrients_only: bool = True,
+    y_col: str | None = "Energy",
+) -> tuple[pd.DataFrame, pd.Series]:
+    """
+    Load numeric nutrient columns. By default keep only micronutrients (same rules as
+    R/nutrient_definitions.R): drop macros, fatty-acid detail columns, Food_Name,
+    and ``Energy`` if ``y_col="Energy"``. Set ``micronutrients_only=False`` for all
+    numeric columns (legacy behavior).
+    """
     df = pd.read_csv(csv_path)
     names = df["Food_Name"] if "Food_Name" in df.columns else pd.Series(np.arange(len(df)))
     numeric = df.select_dtypes(include=[np.number])
     drop_cols = [c for c in numeric.columns if str(c).lower().startswith("unnamed")]
     numeric = numeric.drop(columns=drop_cols, errors="ignore")
+    if micronutrients_only:
+        keep = micronutrient_column_names(df.columns.astype(str).tolist(), y_col=y_col)
+        keep_num = [c for c in keep if c in numeric.columns]
+        numeric = numeric[keep_num]
     return numeric, names
 
 
@@ -93,8 +113,18 @@ def fit_pca_kmeans(
     )
 
 
-def save_plots_and_csv(result: PcaKMeansResult, out_dir: Path, scree_components: int = SCREE_PLOT_COMPONENTS) -> None:
-    out_dir.mkdir(parents=True, exist_ok=True)
+def save_plots_and_csv(
+    result: PcaKMeansResult,
+    plots_dir: Path,
+    *,
+    results_dir: Path | None = None,
+    scree_components: int = SCREE_PLOT_COMPONENTS,
+) -> None:
+    """Write PNGs under ``plots_dir`` and cluster assignments CSV under ``results``."""
+    plots_dir.mkdir(parents=True, exist_ok=True)
+    if results_dir is None:
+        results_dir = RESULTS_DIR
+    results_dir.mkdir(parents=True, exist_ok=True)
     evr = result.pca.explained_variance_ratio_
     Z = result.Z
     km = result.kmeans
@@ -107,7 +137,7 @@ def save_plots_and_csv(result: PcaKMeansResult, out_dir: Path, scree_components:
     ax1.set_title("PCA scree plot (baseline)")
     ax1.set_xticks(np.arange(1, n_scree + 1, max(1, n_scree // 10)))
     fig1.tight_layout()
-    fig1.savefig(out_dir / "pca_scree.png", dpi=150)
+    fig1.savefig(plots_dir / "pca_scree.png", dpi=150)
     plt.close(fig1)
 
     fig2, ax2 = plt.subplots(figsize=(9, 7))
@@ -125,7 +155,7 @@ def save_plots_and_csv(result: PcaKMeansResult, out_dir: Path, scree_components:
     ax2.set_title(f"PCA projection (K-means K={km.n_clusters}, fitted on first {result.n_pc_kmeans} PCs)")
     plt.colorbar(scatter, ax=ax2, label="cluster")
     fig2.tight_layout()
-    fig2.savefig(out_dir / "pca_pc1_pc2_kmeans.png", dpi=150)
+    fig2.savefig(plots_dir / "pca_pc1_pc2_kmeans.png", dpi=150)
     plt.close(fig2)
 
     out_tbl = pd.DataFrame(
@@ -136,7 +166,43 @@ def save_plots_and_csv(result: PcaKMeansResult, out_dir: Path, scree_components:
             "cluster": result.cluster_labels,
         }
     )
-    out_tbl.to_csv(out_dir / "pca_kmeans_assignments.csv", index=False)
+    out_tbl.to_csv(results_dir / "unsupervised_kmeans_assignments.csv", index=False)
+
+
+def write_run_summary(
+    result: PcaKMeansResult,
+    *,
+    data_path: Path,
+    n_features: int,
+    k: int,
+    pc_kmeans_requested: int,
+    seed: int,
+    micronutrients_only: bool,
+    out_path: Path,
+) -> None:
+    evr = result.pca.explained_variance_ratio_
+    cum = np.cumsum(evr)
+    lines = [
+        "Aim 1 (unsupervised): PCA + k-means on micronutrient columns",
+        "",
+        f"Data: {data_path.name}",
+        f"Rows: {len(result.food_names)} | Features (numeric): {n_features}",
+        f"Predictor set: {'micronutrients only (R/nutrient_definitions.R rules)' if micronutrients_only else 'all numeric columns'}",
+        f"K-means: K={k}, PCs used for clustering={result.n_pc_kmeans} (requested {pc_kmeans_requested})",
+        f"random_state={seed}",
+        f"Inertia: {result.kmeans.inertia_:,.2f}",
+        f"Silhouette (on PC space used for k-means): {result.silhouette:.4f}",
+        f"Explained variance ratio: PC1={evr[0]:.4f}, PC2={evr[1]:.4f}",
+        f"Cumulative variance (first {result.n_pc_kmeans} PCs): {cum[result.n_pc_kmeans - 1]:.4f}",
+        "",
+        "Outputs:",
+        f"  plots/unsupervised/pca_scree.png",
+        f"  plots/unsupervised/pca_pc1_pc2_kmeans.png",
+        f"  results/unsupervised_kmeans_assignments.csv",
+        "",
+    ]
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text("\n".join(lines), encoding="utf-8")
 
 
 def main() -> None:
@@ -148,17 +214,31 @@ def main() -> None:
         help="Path to food_nutrient_conc.csv",
     )
     parser.add_argument(
-        "--out-dir",
+        "--plots-dir",
         type=Path,
-        default=Path(__file__).resolve().parent / "outputs",
-        help="Directory for saved figures",
+        default=PLOTS_DIR_UNSUPERVISED,
+        help="Directory for PNG figures (default: plots/unsupervised/)",
+    )
+    parser.add_argument(
+        "--results-dir",
+        type=Path,
+        default=RESULTS_DIR,
+        help="Directory for CSV assignments and run summary (default: results/)",
     )
     parser.add_argument("--k", type=int, default=DEFAULT_K_CLUSTERS)
     parser.add_argument("--pc-kmeans", type=int, default=DEFAULT_N_COMPONENTS_KMEANS)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--all-numeric-nutrients",
+        action="store_true",
+        help="Use every numeric column in the CSV (include macros and fatty-acid detail). "
+        "Default: micronutrient-only columns per R/nutrient_definitions.R.",
+    )
     args = parser.parse_args()
 
-    X_raw, food_names = load_feature_matrix(args.data)
+    X_raw, food_names = load_feature_matrix(
+        args.data, micronutrients_only=not args.all_numeric_nutrients
+    )
     print(f"Loaded {args.data.name}: {len(X_raw)} foods, {X_raw.shape[1]} numeric features")
 
     result = fit_pca_kmeans(X_raw, food_names, k=args.k, pc_kmeans=args.pc_kmeans, seed=args.seed)
@@ -173,8 +253,19 @@ def main() -> None:
         f"first {result.n_pc_kmeans} PCs cumulative={cum[result.n_pc_kmeans - 1]:.3f}"
     )
 
-    save_plots_and_csv(result, args.out_dir)
-    print(f"Wrote plots and CSV under {args.out_dir.resolve()}")
+    save_plots_and_csv(result, args.plots_dir, results_dir=args.results_dir)
+    write_run_summary(
+        result,
+        data_path=args.data,
+        n_features=X_raw.shape[1],
+        k=args.k,
+        pc_kmeans_requested=args.pc_kmeans,
+        seed=args.seed,
+        micronutrients_only=not args.all_numeric_nutrients,
+        out_path=args.results_dir / "unsupervised_aim1_summary.txt",
+    )
+    print(f"Wrote plots under {args.plots_dir.resolve()}")
+    print(f"Wrote assignments + summary under {args.results_dir.resolve()}")
 
 
 if __name__ == "__main__":

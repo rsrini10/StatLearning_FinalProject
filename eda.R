@@ -9,7 +9,7 @@ library(ggplot2)
 theme_set(theme_light())
 
 results_dir <- "results"
-plots_dir <- "plots"
+plots_dir <- file.path("plots", "eda")
 dir.create(results_dir, showWarnings = FALSE, recursive = TRUE)
 dir.create(plots_dir, showWarnings = FALSE, recursive = TRUE)
 out_report <- file.path(results_dir, "eda_report.txt")

@@ -2,7 +2,8 @@
 
 Statistical learning project using the U.S. Department of Agriculture **FoodData Central** survey foods: high-dimensional macronutrient, micronutrient, and caloric information for exploring how nutritional components relate across foods.
 
-Full motivation, aims, and planned evaluation are in [`docs/proposal.md`](docs/proposal.md).
+Full motivation, aims, and planned evaluation are in [`docs/00_proposal.md`](docs/00_proposal.md).  
+Write-ups: [`docs/01_simple_eda_report.md`](docs/01_simple_eda_report.md), [`docs/02_regression.md`](docs/02_regression.md), [`docs/03_unsupervised.md`](docs/03_unsupervised.md).
 
 ## Objectives
 
@@ -22,20 +23,29 @@ This repository already includes exploratory analysis, unsupervised prototypes, 
 
 ```
 StatLearning_FinalProject/
+├── R/
+│   └── nutrient_definitions.R   # Macro vs micronutrient column rules (shared with regression / eda.R)
 ├── docs/
-│   └── proposal.md              # Project proposal (background, aims, evaluation)
-├── unsupervised_learning/       # Python + notebook: PCA / k-means exploration
-├── regression/                  # R regression, calorie prediction code
-├── results/                     # Text reports and CSV summaries from EDA and classification runs
-├── dataprocessing.R             # Builds wide nutrient table and supervised_table from USDA CSVs in data/
-├── eda.R                        # EDA on food_nutrient_conc.csv and supervised_table.csv → results/eda_report.txt
+│   ├── 00_proposal.md
+│   ├── 01_simple_eda_report.md
+│   ├── 02_regression.md
+│   └── 03_unsupervised.md       # Aim 1: PCA / k-means, outputs layout
+├── plots/                       # Figures (grouped by aim)
+│   ├── eda/                     # From eda.R (distributions, micronutrient panels)
+│   ├── regression/             # From regression/predict_calories.R
+│   └── unsupervised/           # From unsupervised_pca_kmeans.py / notebook
+├── unsupervised_learning/       # Python + notebook; nutrient_definitions.py mirrors R column rules
+├── regression/                  # R experiment scripts (e.g. predict_calories.R) → results/ + plots/regression/
+├── results/                     # Text reports and CSVs (EDA, regression, unsupervised)
+├── dataprocessing.R             # Builds food_nutrient_conc.csv and supervised outputs from data/ CSVs
+├── eda.R                        # EDA → results/eda_report.txt, plots/eda/
 ├── food_nutrient_conc.csv       # Generated: foods × nutrient concentrations (per 100 g)
-└── supervised_table.csv         # Generated: features + labels for supervised / classification work
+└── supervised_table.csv         # Features + labels for supervised work
 ```
 
-**Data:** Place FoodData Central extracts under `data/` as expected by `dataprocessing.R` (e.g. `food.csv`, `nutrient.csv`, `food_nutrient.csv`, `food_portion.csv`, `survey_fndds_food.csv`, `wweia_food_category.csv`). After running `dataprocessing.R`, use `eda.R` and the scripts in `classification/` and `unsupervised_learning/` as documented in each file.
+**Data:** Place FoodData Central extracts under `data/` as expected by `dataprocessing.R`. After building the wide tables, run `eda.R`, `regression/predict_calories.R`, and `unsupervised_learning/` as documented in each file.
 
-**Python (unsupervised):** See `unsupervised_learning/requirements.txt` and run notebooks or `unsupervised_learning/unsupervised_pca_kmeans.py` from that directory as needed.
+**Python (unsupervised):** See `unsupervised_learning/requirements.txt`. Run `python unsupervised_pca_kmeans.py` from `unsupervised_learning/` (writes `plots/unsupervised/` and `results/`).
 
 ## Team members
 

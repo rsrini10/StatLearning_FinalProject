@@ -71,8 +71,8 @@ All reported below are on the held-out **test set**.
 - Metrics: `results/regression_aim2_metrics.txt`
 - Model summaries: `results/regression_aim2_model_summaries.txt`
 - Prediction plots:
-  - `plots/regression_aim2_actual_vs_predicted_grid.png`
-  - `plots/regression_aim2_actual_vs_predicted_best.png`
+  - `plots/regression/regression_aim2_actual_vs_predicted_grid.png`
+  - `plots/regression/regression_aim2_actual_vs_predicted_best.png`
 
 ## Notes and Next Steps
 

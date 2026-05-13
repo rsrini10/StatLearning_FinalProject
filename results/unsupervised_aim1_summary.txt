@@ -1,0 +1,16 @@
+Aim 1 (unsupervised): PCA + k-means on micronutrient columns
+
+Data: food_nutrient_conc.csv
+Rows: 5431 | Features (numeric): 34
+Predictor set: micronutrients only (R/nutrient_definitions.R rules)
+K-means: K=8, PCs used for clustering=15 (requested 15)
+random_state=42
+Inertia: 86,691.24
+Silhouette (on PC space used for k-means): 0.2461
+Explained variance ratio: PC1=0.2125, PC2=0.0950
+Cumulative variance (first 15 PCs): 0.8280
+
+Outputs:
+  plots/unsupervised/pca_scree.png
+  plots/unsupervised/pca_pc1_pc2_kmeans.png
+  results/unsupervised_kmeans_assignments.csv

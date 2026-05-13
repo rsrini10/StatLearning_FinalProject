@@ -60,11 +60,11 @@ Interpretation: label distribution is imbalanced, with some very rare categories
 
 To better visualize each micronutrient component, two additional plots are generated from `eda.R` using the same micronutrient-only set used in Aim 2 (34 components; macronutrients and detailed fatty-acid variables excluded):
 
-- **Faceted micronutrient histograms (log scale):** `plots/micronutrient_distributions_faceted.png`  
+- **Faceted micronutrient histograms (log scale):** `plots/eda/micronutrient_distributions_faceted.png`  
   - One panel per component  
   - **All zero-valued rows are excluded before plotting each component**
   - `log(1 + value)` transformation improves readability for skewed positive values
-- **Sparsity bar chart:** `plots/micronutrient_zero_percentage.png`  
+- **Sparsity bar chart:** `plots/eda/micronutrient_zero_percentage.png`  
   - Shows percent of foods with value equal to zero for each component
 
 Summary from this run:
@@ -77,9 +77,9 @@ Interpretation: micronutrient variables have heterogeneous scales and substantia
 
 ## 7) Figures and Outputs
 
-- Calorie histogram: `plots/calorie_distribution.png`  
-- Micronutrient faceted distributions: `plots/micronutrient_distributions_faceted.png`  
-- Micronutrient zero-percentage plot: `plots/micronutrient_zero_percentage.png`  
+- Calorie histogram: `plots/eda/calorie_distribution.png`  
+- Micronutrient faceted distributions: `plots/eda/micronutrient_distributions_faceted.png`  
+- Micronutrient zero-percentage plot: `plots/eda/micronutrient_zero_percentage.png`  
 - Full EDA text output: `results/eda_report.txt`  
 - Table 1 (machine-readable): `results/table1_dataset_characteristics.csv`  
 - Table 1 (text): `results/table1_dataset_characteristics.txt`
@@ -87,3 +87,5 @@ Interpretation: micronutrient variables have heterogeneous scales and substantia
 ## Overall EDA Takeaway
 
 `food_nutrient_conc.csv` is a clean, fully observed, high-dimensional nutritional dataset with substantial heterogeneity and sparsity across nutrients. Energy has high variance and a heavy upper tail, and supervised labels (171 classes) are imbalanced. These properties support using scaling/regularization and considering robust or nonlinear models in downstream analyses.
+
+See also [`03_unsupervised.md`](03_unsupervised.md) for PCA / k-means on the micronutrient-only feature set.

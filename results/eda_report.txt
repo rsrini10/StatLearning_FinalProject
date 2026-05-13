@@ -372,7 +372,7 @@ Micronutrient histogram panels exclude values equal to 0.
 Rows used in faceted histograms (value > 0): 130391
 Median % zeros across micronutrient components: 7.76%
 Max % zeros across micronutrient components: 96.45%
-Saved plot: plots/micronutrient_distributions_faceted.png
-Saved plot: plots/micronutrient_zero_percentage.png
+Saved plot: plots/eda/micronutrient_distributions_faceted.png
+Saved plot: plots/eda/micronutrient_zero_percentage.png
 
 Done.

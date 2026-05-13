@@ -7,7 +7,7 @@ much caloric level is linearly/nonlinearly associated with micronutrient pattern
 supports follow-up work (e.g. ranking foods by micronutrient density = sum of scaled
 micronutrients per kcal, or studying residuals from these models).
 
-Data: ../food_nutrient_conc.csv 
+Data: food_nutrient_conc.csv 
 Response: Energy  | Micronutrient predictors: 34 
 Excluded (examples): protein, fat, carbs, sugars, water, fiber, alcohol, cholesterol,
   total SFA/MUFA/PUFA, and all MUFA/PUFA/SFA detail columns.
@@ -26,8 +26,8 @@ Test-set performance (lower RMSE/MAE is better):
  OLS (micronutrients only) 413.2599 91.4065 -6.7822
 
 Plots (actual vs predicted, test set):
-  /Users/tiger/Projects/StatLearning_FinalProject/plots/regression_aim2_actual_vs_predicted_grid.png
-  /Users/tiger/Projects/StatLearning_FinalProject/plots/regression_aim2_actual_vs_predicted_best.png
+  /Users/conny/Desktop/BST 263/FinalProject/StatLearning_FinalProject/plots/regression/regression_aim2_actual_vs_predicted_grid.png
+  /Users/conny/Desktop/BST 263/FinalProject/StatLearning_FinalProject/plots/regression/regression_aim2_actual_vs_predicted_best.png
 
 Model summaries (fits on training data):
-  /Users/tiger/Projects/StatLearning_FinalProject/results/regression_aim2_model_summaries.txt
+  /Users/conny/Desktop/BST 263/FinalProject/StatLearning_FinalProject/results/regression_aim2_model_summaries.txt

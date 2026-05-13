@@ -11,7 +11,7 @@
 #
 # Run from project root:
 #   Rscript regression/predict_calories.R
-# Writes metrics, model summaries, and PNGs to results/ and plots/.
+# Writes metrics and model summaries to results/; PNGs to plots/regression/.
 #
 # Requires: glmnet, randomForest, FNN, rpart
 
@@ -39,8 +39,11 @@ nutr_def <- if (file.exists("R/nutrient_definitions.R")) {
 }
 source(nutr_def, local = FALSE)
 
-results_dir <- if (dir.exists("results")) "results" else file.path("..", "results")
+root <- if (file.exists("food_nutrient_conc.csv")) "." else ".."
+results_dir <- file.path(root, "results")
+plots_dir <- file.path(root, "plots", "regression")
 dir.create(results_dir, showWarnings = FALSE, recursive = TRUE)
+dir.create(plots_dir, showWarnings = FALSE, recursive = TRUE)
 out_metrics <- file.path(results_dir, "regression_aim2_metrics.txt")
 out_summaries <- file.path(results_dir, "regression_aim2_model_summaries.txt")
 
@@ -178,9 +181,6 @@ tab <- tab[order(tab$RMSE), ]
 rownames(tab) <- NULL
 
 # ----- Plots: actual vs predicted (test set) -----
-plots_dir <- if (dir.exists("plots")) "plots" else file.path("..", "plots")
-dir.create(plots_dir, showWarnings = FALSE, recursive = TRUE)
-
 plot_actual_vs_pred_panel <- function(y_act, y_pr, main) {
   lim <- range(c(y_act, y_pr), na.rm = TRUE)
   plot(y_act, y_pr,
