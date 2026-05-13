@@ -29,28 +29,31 @@ To avoid trivial calorie prediction from macros, the following were excluded:
 - OLS linear regression
 - Ridge regression (`glmnet`, CV-selected lambda)
 - LASSO regression (`glmnet`, CV-selected lambda)
-- Regression tree (`rpart`)
-- Random forest regression (`randomForest`)
+- Regression tree (`rpart`), with `cp`, `minbucket`, and `minsplit` selected by 5-fold CV grid search
+- Random forest regression (`randomForest`), with **`mtry`** and **`ntree`** selected by a 5-fold CV grid (factorial grid; see script for values)
 - k-NN regression (`FNN::knn.reg`), with `k` selected by 5-fold CV on training data
 
-## Evaluation Metrics
+## Evaluation metrics
 
-- **RMSE** (lower is better)
+- **RMSE** (primary headline metric; lower is better)
 - **MAE** (lower is better)
-- **R²** (higher is better)
 
-All reported below are on the held-out **test set**.
+Scaling and CV are documented in `regression/predict_calories.R` and `results/regression_aim2_model_selection_methods.txt` (per-fold z-scores for CV where applicable; glmnet on raw `x` with `standardize=TRUE`).
+
+All metrics below are on the held-out **test set**. For an up-to-date leaderboard after code changes, run `Rscript regression/predict_calories.R` and read `results/regression_aim2_metrics.txt`.
 
 ## Results
 
-| Model | RMSE | MAE | R² |
-|---|---:|---:|---:|
-| Random forest | 50.9090 | 30.2372 | 0.8819 |
-| k-NN regression (k=3) | 59.7932 | 33.2317 | 0.8371 |
-| Regression tree (rpart) | 75.0360 | 45.6572 | 0.7434 |
-| LASSO (glmnet) | 180.5559 | 83.3905 | -0.4855 |
-| Ridge (glmnet) | 252.7258 | 88.7366 | -1.9104 |
-| OLS (micronutrients only) | 413.2599 | 91.4065 | -6.7822 |
+| Model | RMSE | MAE |
+|---|---:|---:|
+| Random forest (5-fold CV, mtry=9, ntree=400) | 49.5846 | 29.0598 |
+| k-NN regression (k=3, 5-fold CV) | 59.7932 | 33.2317 |
+| Regression tree (rpart, 5-fold CV) | 72.7776 | 42.2042 |
+| LASSO (glmnet, 5-fold CV) | 163.3312 | 82.6815 |
+| Ridge (glmnet, 5-fold CV) | 259.9108 | 88.7445 |
+| OLS (micronutrients only) | 413.2599 | 91.4065 |
+
+*Values from the latest `Rscript regression/predict_calories.R` run (test set; `results/regression_aim2_metrics.txt`). Tuning snapshot: rpart best `cp` = 1e-04, `minbucket` = 3, `minsplit` = 20; RF grid over `mtry` × `ntree` with chosen pair (9, 400); k-NN best `k` = 3.*
 
 ## Interpretation
 
@@ -58,10 +61,10 @@ All reported below are on the held-out **test set**.
    Random forest and k-NN capture nonlinear structure in micronutrient-energy relationships much better than OLS/ridge/lasso.
 
 2. **Random forest is the best model in this experiment.**  
-   It achieved the lowest RMSE/MAE and highest R².
+   It achieved the lowest test RMSE among the candidates compared.
 
 3. **Linear models underfit this task under current feature restrictions.**  
-   Negative test R² for OLS/ridge/lasso indicates poor generalization relative to a mean-prediction baseline.
+   OLS/ridge/lasso show much higher test RMSE than the nonlinear methods under micronutrient-only inputs.
 
 4. **Micronutrients alone still carry substantial predictive signal.**  
    Even without direct macronutrient variables, the best model explains a large portion of energy variance.
@@ -70,9 +73,15 @@ All reported below are on the held-out **test set**.
 
 - Metrics: `results/regression_aim2_metrics.txt`
 - Model summaries: `results/regression_aim2_model_summaries.txt`
+- **Supplementary hyperparameter / grid search tables** (written when you run `regression/predict_calories.R`):
+  - `results/supplementary_aim2_hyperparameter_summary.csv` — one row per method + global split/CV rules
+  - `results/supplementary_aim2_hyperparameter_rpart_grid.csv` — full rpart `cp` × `minbucket` × `minsplit` grid with CV RMSE
+  - `results/supplementary_aim2_hyperparameter_rf_grid.csv` — `mtry` × `ntree` factorial grid with mean CV RMSE
+  - `results/supplementary_aim2_hyperparameter_knn_k.csv` — `k` vs mean CV RMSE
+  - `results/supplementary_aim2_hyperparameter_grids.txt` — tab-separated copy of all tables for quick paste
 - Prediction plots:
-  - `plots/regression/regression_aim2_actual_vs_predicted_grid.png`
-  - `plots/regression/regression_aim2_actual_vs_predicted_best.png`
+  - `plots/regression_aim2_actual_vs_predicted_grid.png`
+  - `plots/regression_aim2_actual_vs_predicted_best.png`
 
 ## Notes and Next Steps
 
